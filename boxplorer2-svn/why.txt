@@ -1,0 +1,1 @@
+shaders include setup.inc in include/setup.inc and this path must somehow be made known to OpenGL when include/ is not in the current working dir

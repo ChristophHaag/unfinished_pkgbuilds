@@ -1,0 +1,49 @@
+pkgname=boxplorer2-svn
+pkgver=r424
+pkgrel=1
+pkgdesc="svn checkout http://boxplorer2.googlecode.com/svn/trunk/ boxplorer2-read-only"
+arch=(i686 x86_64)
+url="https://code.google.com/p/boxplorer2/"
+license=('custom') # I think
+makedepends=('subversion')
+options=()
+source=("boxplorer2::svn+http://boxplorer2.googlecode.com/svn/trunk/")
+md5sums=(SKIP) #generate with 'makepkg -g'
+
+prepare() {
+  cd boxplorer2
+  cp Makefile.linux Makefile
+  sed -i "s/-lSDL2main//g" Makefile # wtf?
+  sed -i "s/CHECK_ERROR;//g" boxplorer2.cc # Hack: Remove all glGetError checks because they prevent it from running, at least on mesa
+#  sed -i 's,DEFAULT_CONFIG  "cfgs/rrrola/",DEFAULT_CONFIG  "/usr/share/boxplorer2/cfgs/mandelbulb/",g' boxplorer2.cc
+}
+
+pkgver() {
+  cd boxplorer2
+  local ver="$(svnversion)"
+  printf "r%s" "${ver//[[:alpha:]]}"
+}
+
+build() {
+  cd boxplorer2
+#  ./autogen.sh
+#  ./configure --prefix=/usr
+  make
+}
+
+package() {
+  cd boxplorer2
+  #make DESTDIR="$pkgdir/" install
+  install -d "$pkgdir"/usr/bin
+  install -d "$pkgdir"/usr/share/boxplorer2
+  install -m 755 boxplorer2 "$pkgdir"/usr/bin
+
+  for file in $(find cfgs -type f); do
+      install -m 644 -D ${file} "$pkgdir"/usr/share/boxplorer2/${file#cfg/}
+  done
+
+  install -m 644 -D include/setup.inc "$pkgdir"/usr/share/boxplorer2/include/setup.inc
+#  install -d "$pkgdir"/
+}
+
+# vim:set ts=2 sw=2 et:

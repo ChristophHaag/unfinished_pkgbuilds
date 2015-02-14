@@ -1,0 +1,39 @@
+# Maintainer: Paul Neumann <paul104x@yahoo.de>
+# Adopted from xf86-input-evdev PKGBUILD
+
+pkgname=xf86-input-libinput-git
+pkgver=xf86.input.libinput.0.6.0.r3.g875f169
+pkgrel=1
+pkgdesc="X.org libinput input driver"
+arch=(i686 x86_64)
+url="http://xorg.freedesktop.org/"
+license=('custom')
+depends=('libinput>=0.8.0')
+makedepends=('xorg-server-devel')
+conflicts=('xorg-server<1.16.0' 'xf86-input-libinput')
+source=("git+http://anongit.freedesktop.org/git/xorg/driver/xf86-input-libinput.git")
+sha256sums=('SKIP')
+
+pkgver() {
+  cd xf86-input-libinput
+  ( set -o pipefail
+    git describe --long --tags 2>/dev/null | sed 's/\([^-]*-g\)/r\1/;s/-/./g' ||
+    printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+  )
+}
+
+build() {
+  cd xf86-input-libinput
+  ./autogen.sh --prefix=/usr
+  make
+}
+
+package() {
+  cd xf86-input-libinput
+  make DESTDIR="${pkgdir}" install
+  install -m755 -d "${pkgdir}/usr/share/licenses/${pkgname}"
+  install -m644 COPYING "${pkgdir}/usr/share/licenses/${pkgname}/"
+
+  install -m755 -d "${pkgdir}/usr/share/X11/xorg.conf.d"
+  install -m644 conf/99-libinput.conf "${pkgdir}/usr/share/X11/xorg.conf.d/"
+}

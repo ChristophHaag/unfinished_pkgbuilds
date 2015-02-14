@@ -1,0 +1,86 @@
+# Maintainer: Det <nimetonmaili at gmail a-dot com>
+# Contributors: t3ddy, Lex Rivera aka x-demon, ruario
+
+# Check for new Linux releases in: http://googlechromereleases.blogspot.com/search/label/Dev%20updates
+# or use: $ curl -s https://dl.google.com/linux/chrome/rpm/stable/x86_64/repodata/other.xml.gz | gzip -df | awk -F\" '/pkgid/{ sub(".*-","",$4); print $4": "$10 }'
+
+pkgname=chromium-dev-ubuntu-bin
+pkgver=42.0.2298.0
+pkgrel=1
+ppa=2
+ppaname=vivid
+
+pkgdesc="An attempt at creating a safer, faster, and more stable browser (Dev Channel)"
+arch=('i686' 'x86_64')
+url="https://launchpad.net/~saiarcot895/+archive/chromium-dev/+packages?field.name_filter=&field.status_filter=published&field.series_filter=vivid"
+license=('custom:chrome')
+depends=('alsa-lib' 'desktop-file-utils' 'flac' 'gconf' 'gtk2' 'harfbuzz' 'harfbuzz-icu' 'hicolor-icon-theme' 'icu'
+         'libgcrypt15' 'libpng' 'libxss' 'libxtst' 'nss' 'opus' 'snappy' 'speech-dispatcher' 'ttf-font' 'xdg-utils')
+optdepends=('kdebase-kdialog: needed for file dialogs in KDE'
+            'ttf-google-fonts-git')
+provides=("chromium")
+options=('!emptydirs' '!strip')
+noextract=("codecs-${pkgver}.deb" "codecs-extra-${pkgver}.deb")
+install=${pkgname}.install
+_channel=unstable
+_arch=i386
+[ "${CARCH}" = 'x86_64' ] && _arch=amd64
+
+
+#https://launchpad.net/~saiarcot895/+archive/chromium-dev/+files/chromium-browser_35.0.1916.6-0ubuntu1%7Eppa1%7Etrusty1_amd64.deb
+#https://launchpad.net/~saiarcot895/+archive/chromium-dev/+files/chromium-browser_36.0.1941.0-0ubuntu1~ppa4~trusty1_amd64.deb
+#https://launchpad.net/~saiarcot895/+archive/ubuntu/chromium-dev/+files/chromium-browser_38.0.2125.0-0ubuntu1~ppa1~utopic1_amd64.deb
+
+source=("google-chrome-${_channel}_${pkgver}_${_arch}.deb::https://launchpad.net/~saiarcot895/+archive/chromium-dev/+files/chromium-browser_${pkgver}-0ubuntu1~ppa${ppa}~${ppaname}1_${_arch}.deb"
+        "codecs-${pkgver}.deb::https://launchpad.net/~saiarcot895/+archive/chromium-dev/+files/chromium-codecs-ffmpeg_${pkgver}-0ubuntu1~ppa${ppa}~${ppaname}1_${_arch}.deb"
+        "codecs-extra-${pkgver}.deb::https://launchpad.net/~saiarcot895/+archive/chromium-dev/+files/chromium-codecs-ffmpeg-extra_${pkgver}-0ubuntu1~ppa${ppa}~${ppaname}1_${_arch}.deb")
+
+md5sums=('ba89e93d1596a787770c69d94cceaba2') #wrong
+
+[ "${CARCH}" = 'x86_64' ] && md5sums=('28266c42e642d6b9fa07e3b2f33633d7'
+         'cc2cbe0be507450d0a6d4e12fcbd7efa'
+         '0343c7a903a731ab90af63d7d0758725')
+
+package() {
+  msg2 "Extracting the data.tar.xz"
+  bsdtar -xf data.tar.xz -C "${pkgdir}/"
+
+#/usr/bin/chromium
+ln -s chromium-browser ${pkgdir}/usr/bin/chromium
+
+ar x codecs-${pkgver}.deb
+bsdtar -xf data.tar.xz -C "${pkgdir}/"
+
+ar x codecs-extra-${pkgver}.deb
+bsdtar -xf data.tar.xz -C "${pkgdir}/"
+
+#  msg2 "Moving stuff in place"
+
+#already in place
+  # Icons
+#  for i in 16 22 24 32 48 64 128 256; do
+#    install -Dm644 "${pkgdir}"/opt/google/chrome-${_channel}/product_logo_${i}.png \
+#                   "${pkgdir}"/usr/share/icons/hicolor/${i}x${i}/apps/google-chrome-${_channel}.png
+#  done
+
+  # Man page
+#already
+#  gzip "${pkgdir}"/usr/share/man/man1/google-chrome-${_channel}.1
+
+#not for chromium
+  # License
+#  install -Dm644 eula_text.html "${pkgdir}"/usr/share/licenses/google-chrome-${_channel}/eula_text.html
+
+
+#no
+#  msg2 "Symlinking missing Udev lib"
+#  ln -s /usr/lib/libudev.so.1 "${pkgdir}"/opt/google/chrome-${_channel}/libudev.so.0
+
+#  msg2 "Removing unnecessities (e.g. Debian Cron job)"
+#  rm -r "${pkgdir}"/etc/cron.daily/ "${pkgdir}"/opt/google/chrome-${_channel}/cron/
+#  rm "${pkgdir}"/opt/google/chrome-${_channel}/product_logo_*.png
+}
+
+md5sums=('99188e39d0b95ed2b03c712973c0624d'
+         '35576d26c4ca3364182fc35f78fbd9fe'
+         'c04cf973827eef438cb1ac90893651be')
