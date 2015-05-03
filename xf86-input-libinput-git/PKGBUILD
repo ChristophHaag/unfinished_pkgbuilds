@@ -2,7 +2,7 @@
 # Adopted from xf86-input-evdev PKGBUILD
 
 pkgname=xf86-input-libinput-git
-pkgver=xf86.input.libinput.0.6.0.r3.g875f169
+pkgver=0.8.0.r5.g8d4e035
 pkgrel=1
 pkgdesc="X.org libinput input driver"
 arch=(i686 x86_64)
@@ -13,13 +13,15 @@ makedepends=('xorg-server-devel')
 conflicts=('xorg-server<1.16.0' 'xf86-input-libinput')
 source=("git+http://anongit.freedesktop.org/git/xorg/driver/xf86-input-libinput.git")
 sha256sums=('SKIP')
+provides=("xf86-input-evdev")
 
 pkgver() {
   cd xf86-input-libinput
-  ( set -o pipefail
-    git describe --long --tags 2>/dev/null | sed 's/\([^-]*-g\)/r\1/;s/-/./g' ||
-    printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
-  )
+git describe --long | sed 's/^xf86.input.libinput.//;s/\([^-]*-g\)/r\1/;s/-/./g'
+#  ( set -o pipefail
+#    git describe --long --tags 2>/dev/null | sed 's/\([^-]*-g\)/r\1/;s/-/./g' ||
+#    printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+#  )
 }
 
 build() {
@@ -36,4 +38,9 @@ package() {
 
   install -m755 -d "${pkgdir}/usr/share/X11/xorg.conf.d"
   install -m644 conf/99-libinput.conf "${pkgdir}/usr/share/X11/xorg.conf.d/"
+
+  rm -f "$pkgdir/usr/lib/xorg/modules/input/libinput_drv.la"
+  # Contains: /usr/lib/xorg/modules/input/libinput_drv.la:dependency_libs=' /usr/lib/libinput.la -lmtdev /usr/lib/libudev.la -lcap -ldw -ldl -levdev -lrt -lm'
+  # That screws with everything that wants to link against -linput because it then requires libudev.la, which doesn't exist
+
 }
