@@ -5,9 +5,9 @@
 # or use: $ curl -s https://dl.google.com/linux/chrome/rpm/stable/x86_64/repodata/other.xml.gz | gzip -df | awk -F\" '/pkgid/{ sub(".*-","",$4); print $4": "$10 }'
 
 pkgname=chromium-dev-ubuntu-bin
-pkgver=44.0.2383.0
+pkgver=45.0.2414.0
 pkgrel=1
-ppa=2
+ppa=1
 ppaname=vivid
 
 pkgdesc="An attempt at creating a safer, faster, and more stable browser (Dev Channel)"
@@ -81,6 +81,6 @@ bsdtar -xf data.tar.xz -C "${pkgdir}/"
 #  rm "${pkgdir}"/opt/google/chrome-${_channel}/product_logo_*.png
 }
 
-md5sums=('7ab4d7c9a99d8dc9e79c2ba73a4a2fa2'
-         '281ca42cf127a0ea2d2790f3b6d3f55a'
-         'efd1a5dc0e07e1ad83c71dab4ca910c8')
+md5sums=('151fbaefcc838b94ca69f05bff495045'
+         '30695c4986bf62bcb23b8628c1817a8f'
+         '0e3832e29073a49c78bf61b643821ba5')
